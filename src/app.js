@@ -3,8 +3,13 @@ const express = require('express');
 //instance of express js 
 const app = express();
 
-app.use("/", (req, res, next) => {
-    res.send('Hello from the dashboard!');
+app.get("/user", (req, res) => {
+    console.log(req.query);
+    res.send('Retrived user data from database');
+});
+
+app.post("/user", (req, res, next) => {
+    res.send('Data received at database');
 });
 
 app.use("/test", (req, res) => {
