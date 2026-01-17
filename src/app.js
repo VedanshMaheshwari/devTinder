@@ -1,21 +1,16 @@
 const express = require('express');
-
-//instance of express js 
+const connectDB = require("./config/database");
 const app = express();
 
-app.get("/user", (req, res) => {
-    console.log(req.query);
-    res.send('Retrived user data from database');
+connectDB().then(()=>{
+    console.log('Database connected successfully');
+    app.listen(7777, () => {
+        console.log('Server is running on port 7777');
+    });
+})
+.catch((err)=>{
+    console.error('Database connection failed:', err);
 });
 
-app.post("/user", (req, res, next) => {
-    res.send('Data received at database');
-});
 
-app.use("/test", (req, res) => {
-    res.send('Hello from the test route!');
-});
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
+ 
