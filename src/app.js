@@ -3,6 +3,9 @@ const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/User");
 
+app.use(express.json());
+
+//Push data in DB
 app.post("/signup", async (rew,res)=>{
     //Dyanamically creating user from request body
     const user = new User(req.body);
@@ -29,6 +32,17 @@ app.post("/signup", async (rew,res)=>{
     //     res.status(400).send("Error signing up user: " + err.message);
     // }
 }) 
+
+//Read data from DB
+app.get("/feed", async (req,res)=>{
+    try{
+        const users = await User.find({});
+        res.json(users);        
+    }
+    catch(err){
+        res.status(500).send("Error fetching users: " + err.message);
+    }
+});
 
 
 connectDB().then(()=>{
