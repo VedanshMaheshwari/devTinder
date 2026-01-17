@@ -4,21 +4,30 @@ const app = express();
 const User = require("./models/User");
 
 app.post("/signup", async (rew,res)=>{
-    const obj = new User({
-        firstName: "John",
-        lastName: "Doe",
-        emailID: "john@gmail.com",
-        password: "password123",
-        age: 30,
-        gender: "Male",
-    });
+    //Dyanamically creating user from request body
+    const user = new User(req.body);
 
     try{
-        await obj.save();
+        await user.save();
         res.send("User signed up successfully");
     }catch(err){
         res.status(400).send("Error signing up user: " + err.message);
     }
+    // const obj = new User({
+    //     firstName: "John",
+    //     lastName: "Doe",
+    //     emailID: "john@gmail.com",
+    //     password: "password123",
+    //     age: 30,
+    //     gender: "Male",
+    // });
+
+    // try{
+    //     await obj.save();
+    //     res.send("User signed up successfully");
+    // }catch(err){
+    //     res.status(400).send("Error signing up user: " + err.message);
+    // }
 }) 
 
 
