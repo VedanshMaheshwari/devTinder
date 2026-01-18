@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const { use } = require('react');
 var validator = require('validator');
 
-const schema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
     emailID: {type: String,lowercase:true, required: true, unique: true},
@@ -30,6 +31,20 @@ const schema = new mongoose.Schema({
         timestamps: true 
     }
 )
+
+userSchema.methods.getJWT = async function(){
+    const user = this;
+    const token = jwt.sign({_id: user._id}, "DEVTINDERSECRETKEY",{ expiresIn: '7d' });
+    return token;
+}
+
+userSchema.method.validatePassword = async function(password){
+    const user = this;
+    const passwordHash  = user.password;
+    const isPasswordValid = await bcrypt.compare(password, passwordHash);
+
+    return isPasswordValid; 
+}
 
 
 const User = mongoose.model('User', schema);

@@ -1,22 +1,29 @@
-const adminAuth = (req, res, next) => {
-    console.log("Admin Auth Middleware Invoked");
-    const token = "xyz";
-    const isAdminAuthenticated = token === "xyz";
-    if(!isAdminAuthenticated){
-        res.status(403).send('Access Denied');
-    }else{
-        next();
-    }
-}
+const jwt = require('jsonwebtoken');
 
-const userAuth = (req, res, next) => {
-    console.log("user Auth Middleware Invoked");
-    const token = "xyz";
-    const isUserAuthenticated = token === "xyz";
-    if(!isUserAuthenticated){
-        res.status(403).send('Access Denied');
-    }else{
-        next();
+const userAuth = async (req, res, next) => {
+    //Read the token from req cookies
+    try{const cookies = req.cookies;
+    const {token} = cookies;
+    if(!token){
+        throw new Error("Invalid Token");
+    }
+
+    //Verify the token
+    const decoded = await JsonWebTokenError.verify(token, "DEVTINDERSECRETKEY");
+    const {_id} = decoded;
+
+    //Find user from the token
+    const user = await User.findById(_id);
+    if(!user){
+        throw new Error("User not found");
+    }   
+
+    req.user = user; //attach user to req object
+    req.token = token; //attach token to req object
+    next();
+    }
+    catch(err){
+        res.status(500).send("Authentication Error: " + err.message);
     }
 }
 

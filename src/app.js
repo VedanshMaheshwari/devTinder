@@ -6,6 +6,8 @@ const {validateSignUpData} = require("./utils/validation");
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const { userAuth } = require('./Middlewares/auth');
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -59,12 +61,11 @@ app.post("/login", async (req , res)=>{
         if(!user){
             return res.status(400).send("Invalid Email ID or Password");
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await user.validatePassword(password);
          
         if(isPasswordValid){
             //create a JWT token
-            const token = await jwt.sign({_id: user._id}, "DEVTINDERSECRETKEY");
-
+            const token = await user.getJWT();
             //add token to cookies or send in response back to user
             res.cookie('token', token); 
             res.send("User logged in successfully");
@@ -80,30 +81,15 @@ app.post("/login", async (req , res)=>{
 });
 
 //Profile after login
-app.get("/profile", async (req,res)=> {
+app.get("/profile",userAuth, async (req,res)=> {
     try{
-
-        const cookies = req.cookies;
-        const {token} = cookies;
-        
-        if(!token){
-            throw new Error("Invalid Token");
-        }
-
-        const decoded = await jwt.verify(token, "DEVTINDERSECRETKEY");
-        
-        const {_id} = decoded;
-        const user = await User.findById(_id);
-        if(!user){
-            throw new Error("User not found");
-        }
-
-        console.log("User Profile:", user);
-
-        console.log("Decoded JWT:", decoded);
-        console.log("Cookies:", token);
-
-        res.send("Reading Cookies");
+        const user = req.user;
+        const token = req.token;
+        // if(!user){
+        //     throw new Error("User not found");
+        // }
+        //NO NEED TO FETCH USER AGAIN AS userAuth MIDDLEWARE WILL DO IT (attached to req object)
+        res.send(user);
     }
     catch(err){
         res.status(500).send("Error fetching profile: " + err.message);
